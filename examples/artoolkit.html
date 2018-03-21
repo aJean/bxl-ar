@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes, minimum-scale=1, maximum-scale=1">
+        <title>web ar 演示 - artoolkit</title>
+    </head>
+    <body>
+        <script src="../dist/jsartoolkit.js"></script>
+        <script src="../dist/lib.js"></script>
+        <video id="ar-video" style="position:relative;z-index:1;" autoplay playsinline></video>
+        <script>
+            new bxlx.AR({
+                camera: './assets/camera_para_ios',
+                texurl: './assets/material.gif'
+            });
+        </script>
+    </body>
+</html>
