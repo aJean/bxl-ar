@@ -1,5 +1,4 @@
 /// <reference path="../node_modules/@types/jquery/index.d.ts" />
-import {WebGLRenderer, Scene, PerspectiveCamera, TextureLoader, BoxBufferGeometry, MeshBasicMaterial, Mesh} from 'three';
 
 /**
  * @file webar
@@ -8,6 +7,7 @@ import {WebGLRenderer, Scene, PerspectiveCamera, TextureLoader, BoxBufferGeometr
  */
 
 declare const Aruco: any;
+declare const THREE: any;
 
 const winWidth = window.innerWidth;
 const winHeight = window.innerHeight;
@@ -55,7 +55,7 @@ export default class AR {
     }
 
     createRender(texurl) {
-        const webgl = this.webgl = new WebGLRenderer({alpha: true, antialias: true});
+        const webgl = this.webgl = new THREE.WebGLRenderer({alpha: true, antialias: true});
         const render = this.render = webgl.domElement;
 
         webgl.setPixelRatio(window.devicePixelRatio);
@@ -69,14 +69,14 @@ export default class AR {
 
         document.body.appendChild(render);
 
-        const scene = this.scene = new Scene();
-        const camera = this.camera = new PerspectiveCamera(80, winWidth / winHeight, 1, 1000);
+        const scene = this.scene = new THREE.Scene();
+        const camera = this.camera = new THREE.PerspectiveCamera(80, winWidth / winHeight, 1, 1000);
         camera.position.set(0, 0, 600);
         
-        const texture = new TextureLoader().load(texurl);
-        const geometry = new BoxBufferGeometry(200, 200, 200);
-        const material = new MeshBasicMaterial({map: texture});
-        const mesh = this.mesh = new Mesh(geometry, material);
+        const texture = new THREE.TextureLoader().load(texurl);
+        const geometry = new THREE.BoxBufferGeometry(200, 200, 200);
+        const material = new THREE.MeshBasicMaterial({map: texture});
+        const mesh = this.mesh = new THREE.Mesh(geometry, material);
 
         scene.add(mesh);
 

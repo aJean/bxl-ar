@@ -1,5 +1,8 @@
 /**
  * @file local compile
+ * @package threejs 不打包
+ *          jquery, js-aruco 通过 provide plugin 打包
+ *          jsartoolkit 单独打包
  */
 
 const webpack = require('webpack');
@@ -22,7 +25,8 @@ module.exports = {
         minimize: false
     },
     entry: {
-        // jsartoolkit: ['./third_party/artoolkit.debug', './third_party/artoolkit.api', './third_party/artoolkit.three'],
+        // npm-jsartookit5 没法用
+        // artoolkit: ['./third_party/artoolkit.debug', './third_party/artoolkit.api', './third_party/artoolkit.three'],
         lib: './src/index.ts'
     },
     output: {
@@ -49,6 +53,9 @@ module.exports = {
     },
     resolve: {
         extensions: ['.js', '.json', '.ts']
+    },
+    externals: {
+        'three': 'window.THREE'
     },
     plugins: [extractLess, packLib]
 };

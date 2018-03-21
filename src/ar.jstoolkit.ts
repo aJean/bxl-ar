@@ -1,10 +1,9 @@
-declare const ARController: any;
-
 /**
  * @file webar
  * use js-artoolkit5
  */
 
+const ARController = window['ARController'];
 export default class AR {
     constructor(opts) {
         ARController.getUserMediaThreeScene({
