@@ -2,7 +2,7 @@
  * @file local compile
  * @package threejs 不打包
  *          jquery, js-aruco 通过 provide plugin 打包
- *          jsartoolkit 单独打包
+ *          jsartoolkit fis3 单独打包
  */
 
 const webpack = require('webpack');
@@ -25,8 +25,6 @@ module.exports = {
         minimize: false
     },
     entry: {
-        // npm-jsartookit5 没法用
-        // artoolkit: ['./third_party/artoolkit.debug', './third_party/artoolkit.api', './third_party/artoolkit.three'],
         lib: './src/index.ts'
     },
     output: {

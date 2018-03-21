@@ -12927,7 +12927,7 @@ var AR = /** @class */ (function () {
             maxARVideoSize: 320,
             cameraParam: opts.camera,
             onSuccess: function (arScene, arController, arCamera) {
-                console.log(111);
+                alert(111);
             }
         });
     }

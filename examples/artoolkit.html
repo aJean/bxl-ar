@@ -8,12 +8,12 @@
     </head>
     <body>
         <script src="../dist/three.min.js"></script>
-        <script src="../dist/artoolkit.js"></script>
+        <script src="../dist/dep.js"></script>
         <script src="../dist/lib.js"></script>
         <video id="ar-video" style="position:relative;z-index:1;" autoplay playsinline></video>
         <script>
             new bxlx.AR({
-                camera: './assets/camera_para_ios',
+                camera: './assets/camera_para_ios.dat',
                 texurl: './assets/material.gif'
             });
         </script>
