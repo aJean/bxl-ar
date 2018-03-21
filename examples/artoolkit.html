@@ -5,15 +5,20 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes, minimum-scale=1, maximum-scale=1">
         <title>web ar 演示 - artoolkit</title>
+        <style>
+            body {
+                margin: 0;
+            }
+        </style>
     </head>
     <body>
         <script src="../dist/three.min.js"></script>
         <script src="../dist/dep.js"></script>
         <script src="../dist/lib.js"></script>
-        <video id="ar-video" style="position:relative;z-index:1;" autoplay playsinline></video>
         <script>
             new bxlx.AR({
                 camera: './assets/camera_para_ios.dat',
+                marker: './assets/patt.hiro',
                 texurl: './assets/material.gif'
             });
         </script>

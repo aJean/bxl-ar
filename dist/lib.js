@@ -12916,18 +12916,34 @@ var AR = /** @class */ (function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/**
- * @file webar
- * use js-artoolkit5
- */
 var ARController = window['ARController'];
 var AR = /** @class */ (function () {
     function AR(opts) {
         ARController.getUserMediaThreeScene({
             maxARVideoSize: 320,
+            facingMode: 'environment',
             cameraParam: opts.camera,
             onSuccess: function (arScene, arController, arCamera) {
-                alert(111);
+                document.body.className = arController.orientation;
+                var renderer = new THREE.WebGLRenderer({ antialias: true });
+                var w = (window.innerWidth / arController.videoHeight) * arController.videoWidth;
+                var h = window.innerWidth;
+                renderer.setSize(w, h);
+                renderer.domElement.style.paddingBottom = (w - h) + 'px';
+                document.body.appendChild(renderer.domElement);
+                var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 8, 8), new THREE.MeshNormalMaterial());
+                sphere.position.z = 0.5;
+                arController.loadMarker(opts.marker, function (markerId) {
+                    var markerRoot = arController.createThreeMarker(markerId);
+                    markerRoot.add(sphere);
+                    arScene.scene.add(markerRoot);
+                });
+                var tick = function () {
+                    arScene.process();
+                    arScene.renderOn(renderer);
+                    requestAnimationFrame(tick);
+                };
+                tick();
             }
         });
     }
