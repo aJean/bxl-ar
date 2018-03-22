@@ -29,10 +29,10 @@
 		if (typeof width !== 'number') {
 			var image = width;
 			camera = height;
-			w = image.videoWidth || image.width;
-			h = image.videoHeight || image.height;
+			w = window.innerWidth;
+			h = window.innerHeight;
 			this.image = image;
-		}
+        }
 
 		this.defaultMarkerWidth = 1;
 		this.patternMarkers = {};
@@ -943,9 +943,9 @@
 		this.ctx.save();
 
 		if (this.orientation === 'portrait') {
-			this.ctx.translate(this.canvas.width, 0);
-			this.ctx.rotate(Math.PI/2);
-			this.ctx.drawImage(image, 0, 0, this.canvas.height, this.canvas.width); // draw video
+			// this.ctx.translate(this.canvas.width, 0);
+			// this.ctx.rotate(Math.PI/2);
+			this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height); // draw video
 		} else {
 			this.ctx.drawImage(image, 0, 0, this.canvas.width, this.canvas.height); // draw video
 		}
@@ -1139,31 +1139,6 @@
 	/**
 		ARController.getUserMediaARController gets an ARController for the device camera video feed and calls the
 		given onSuccess callback with it.
-		To use ARController.getUserMediaARController, call it with an object with the cameraParam attribute set to
-		a camera parameter file URL, and the onSuccess attribute set to a callback function.
-			ARController.getUserMediaARController({
-				cameraParam: 'Data/camera_para.dat',
-				onSuccess: function(arController, arCameraParam) {
-					console.log("Got ARController", arController);
-					console.log("Got ARCameraParam", arCameraParam);
-					console.log("Got video", arController.image);
-				}
-			});
-		The configuration object supports the following attributes:
-			{
-				onSuccess : function(ARController, ARCameraParam),
-				onError : function(error),
-				cameraParam: url, // URL to camera parameters definition file.
-				maxARVideoSize: number, // Maximum max(width, height) for the AR processing canvas.
-				width : number | {min: number, ideal: number, max: number},
-				height : number | {min: number, ideal: number, max: number},
-				facingMode : 'environment' | 'user' | 'left' | 'right' | { exact: 'environment' | ... }
-			}
-		See https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia for more information about the
-		width, height and facingMode attributes.
-		The orientation attribute of the returned ARController is set to "portrait" if the userMedia video has larger
-		height than width. Otherwise it's set to "landscape". The videoWidth and videoHeight attributes of the arController
-		are set to be always in landscape configuration so that width is larger than height.
 		@param {object} configuration The configuration object.
 		@return {HTMLVideoElement} Returns the created video element.
 	*/
@@ -1178,27 +1153,13 @@
 		obj.onSuccess = function() {
 			new ARCameraParam(cameraParamURL, function() {
 				var arCameraParam = this;
-				var maxSize = configuration.maxARVideoSize || Math.max(video.videoWidth, video.videoHeight);
-				var f = maxSize / Math.max(video.videoWidth, video.videoHeight);
-				var w = f * video.videoWidth;
-				var h = f * video.videoHeight;
-				if (video.videoWidth < video.videoHeight) {
-					var tmp = w;
-					w = h;
-					h = tmp;
-				}
+				var w = video.videoWidth;
+				var h =  video.videoHeight;
+
 				var arController = new ARController(w, h, arCameraParam);
 				arController.image = video;
+                arController.orientation = 'portrait';
 
-				if (video.videoWidth <= video.videoHeight) {
-					arController.orientation = 'portrait';
-					arController.videoWidth = video.videoHeight;
-					arController.videoHeight = video.videoWidth;
-				} else {
-					arController.orientation = 'landscape';
-					arController.videoWidth = video.videoWidth;
-					arController.videoHeight = video.videoHeight;
-				}
 				onSuccess(arController, arCameraParam);
 			}, function(err) {
 				console.error("ARController: Failed to load ARCameraParam", err);

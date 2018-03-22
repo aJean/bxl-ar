@@ -12920,16 +12920,12 @@ var ARController = window['ARController'];
 var AR = /** @class */ (function () {
     function AR(opts) {
         ARController.getUserMediaThreeScene({
-            maxARVideoSize: 320,
             facingMode: 'environment',
             cameraParam: opts.camera,
             onSuccess: function (arScene, arController, arCamera) {
                 document.body.className = arController.orientation;
                 var renderer = new THREE.WebGLRenderer({ antialias: true });
-                var w = (window.innerWidth / arController.videoHeight) * arController.videoWidth;
-                var h = window.innerWidth;
-                renderer.setSize(w, h);
-                renderer.domElement.style.paddingBottom = (w - h) + 'px';
+                renderer.setSize(arController.videoWidth, arController.videoHeight);
                 document.body.appendChild(renderer.domElement);
                 var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 8, 8), new THREE.MeshNormalMaterial());
                 sphere.position.z = 0.5;

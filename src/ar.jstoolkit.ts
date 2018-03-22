@@ -1,6 +1,7 @@
 /**
  * @file webar
  * use js-artoolkit5
+ * @TODO: renderon output ar marker only
  */
 declare const THREE: any;
 
@@ -8,18 +9,13 @@ const ARController = window['ARController'];
 export default class AR {
     constructor(opts) {
         ARController.getUserMediaThreeScene({
-            maxARVideoSize: 320,
             facingMode: 'environment',
             cameraParam: opts.camera, 
 	        onSuccess: function(arScene, arController, arCamera) {  
                 document.body.className = arController.orientation;
                               
                 const renderer = new THREE.WebGLRenderer({antialias: true});
-                const w = (window.innerWidth / arController.videoHeight) * arController.videoWidth;
-                const h = window.innerWidth;
-                
-                renderer.setSize(w, h);
-                renderer.domElement.style.paddingBottom = (w-h) + 'px';
+                renderer.setSize(arController.videoWidth, arController.videoHeight);
                 document.body.appendChild(renderer.domElement);
 
                 const sphere = new THREE.Mesh(
