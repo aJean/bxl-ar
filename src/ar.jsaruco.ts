@@ -1,4 +1,5 @@
 /// <reference path="../node_modules/@types/jquery/index.d.ts" />
+import * as THREE from 'three';
 
 /**
  * @file webar
@@ -7,7 +8,6 @@
  */
 
 declare const Aruco: any;
-declare const THREE: any;
 
 const winWidth = window.innerWidth;
 const winHeight = window.innerHeight;

@@ -24,6 +24,8 @@
   },
   "homepage": "https://github.com/aJean/bxl-ar#readme",
   "dependencies": {
+    "@tensorflow/tfjs": "^0.9.1",
+    "@types/es6-shim": "^0.31.36",
     "@types/jquery": "^3.3.1",
     "@types/three": "^0.89.12",
     "jquery": "^3.3.1",

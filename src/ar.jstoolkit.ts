@@ -1,9 +1,10 @@
+import * as THREE from 'three';
+
 /**
  * @file webar
  * use js-artoolkit5
  * @TODO: renderon output ar marker only
  */
-declare const THREE: any;
 
 const ARController = window['ARController'];
 export default class AR {
