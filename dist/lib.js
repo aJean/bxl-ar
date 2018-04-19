@@ -40116,6 +40116,275 @@ exports.default = AR;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+/* WEBPACK VAR INJECTION */(function($) {
+/// <reference path="../node_modules/@types/jquery/index.d.ts" />
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var tf = __webpack_require__(/*! @tensorflow/tfjs */ "./node_modules/@tensorflow/tfjs/dist/index.js");
+var webcam_1 = __webpack_require__(/*! ./webcam */ "./src/webcam.ts");
+var dataset_1 = __webpack_require__(/*! ./dataset */ "./src/dataset.ts");
+/**
+ * webar by tensorflow
+ */
+var CONTROLS = ['up', 'left', 'right', 'down'];
+var TOTALS = [0, 0, 0, 0];
+var ART = /** @class */ (function () {
+    function ART() {
+        this.training = false;
+        this.active = false;
+    }
+    /**
+     * y = 2x
+     */
+    ART.prototype.testMath = function () {
+        var trainingAnswer = tf.variable(tf.scalar(Math.random()));
+        function predict(x) {
+            return tf.tidy(function () {
+                return trainingAnswer.mul(x);
+            });
+        }
+        function loss(predictions, labels) {
+            var meanSquareError = predictions.sub(labels).square().mean();
+            return meanSquareError;
+        }
+        function generateData(numPoints, answer) {
+            return tf.tidy(function () {
+                var xs = tf.randomNormal([numPoints], -1, 1);
+                var ans = tf.scalar(answer);
+                var ys = ans.mul(xs);
+                return { xs: xs, ys: ys };
+            });
+        }
+        function train(xs, ys, numIterations) {
+            var optimizer = tf.train.sgd(0.5);
+            for (var iter = 0; iter < numIterations; iter++) {
+                optimizer.minimize(function () {
+                    var predsYs = predict(xs);
+                    return loss(predsYs, ys);
+                });
+            }
+        }
+        function learnCoefficients(dataCount, iterations) {
+            return __awaiter(this, void 0, void 0, function () {
+                var correctAnswer, trainingData, _a, _b, _c, _d, _e, _f;
+                return __generator(this, function (_g) {
+                    switch (_g.label) {
+                        case 0:
+                            correctAnswer = 2;
+                            trainingData = generateData(dataCount, 2);
+                            _b = (_a = console).log;
+                            _c = ['Before Training: '];
+                            return [4 /*yield*/, trainingAnswer.data()];
+                        case 1:
+                            _b.apply(_a, _c.concat([_g.sent()]));
+                            // Train the model!
+                            return [4 /*yield*/, train(trainingData.xs, trainingData.ys, iterations)];
+                        case 2:
+                            // Train the model!
+                            _g.sent();
+                            // 印出訓練結果
+                            _e = (_d = console).log;
+                            _f = ['After TRaining: '];
+                            return [4 /*yield*/, trainingAnswer.data()];
+                        case 3:
+                            // 印出訓練結果
+                            _e.apply(_d, _f.concat([_g.sent()]));
+                            return [2 /*return*/];
+                    }
+                });
+            });
+        }
+        learnCoefficients(100, 1000);
+    };
+    ART.prototype.addExamples = function (index) {
+        var _this = this;
+        this.training = true;
+        var label = CONTROLS[index];
+        $(document.body).attr('data-active', label);
+        tf.nextFrame().then(function () {
+            if (_this.training) {
+                tf.tidy(function () {
+                    var img = _this.webcam.capture();
+                    _this.dataset.addExample(_this.mobilenet.predict(img), label);
+                    // Draw the preview thumbnail.
+                    _this.drawThumb(img, label);
+                    $("#" + label + "-total").html(String(TOTALS[index]++));
+                });
+                _this.addExamples(index);
+            }
+        });
+    };
+    ART.prototype.drawThumb = function (img, label) {
+        var canvas = $("#" + label + "-thumb").get(0);
+        var ctx = canvas.getContext('2d');
+        var imageData = new ImageData(224, 224);
+        var data = img.dataSync();
+        for (var i = 0; i < 224 * 224; ++i) {
+            var j = i * 4;
+            imageData.data[j + 0] = (data[i * 3 + 0] + 1) * 127;
+            imageData.data[j + 1] = (data[i * 3 + 1] + 1) * 127;
+            imageData.data[j + 2] = (data[i * 3 + 2] + 1) * 127;
+            imageData.data[j + 3] = 255;
+        }
+        ctx.putImageData(imageData, 0, 0);
+    };
+    ART.prototype.testWebcam = function () {
+        var _this = this;
+        var webcam = this.webcam = new webcam_1.default($('#webcam').get(0));
+        webcam.setup();
+        this.dataset = new dataset_1.default(4);
+        tf.loadModel('./model/webcam.json').then(function (model) {
+            var layer = model.getLayer('conv_pw_13_relu');
+            _this.mobilenet = tf.model({ inputs: model.inputs, outputs: layer.output });
+            // Warm up the model
+            tf.tidy(function () { return _this.mobilenet.predict(webcam.capture()); });
+        });
+        $('#up').on('mousedown', function () {
+            _this.addExamples(0);
+        });
+        $('#left').on('mousedown', function () {
+            _this.addExamples(1);
+        });
+        $('#right').on('mousedown', function () {
+            _this.addExamples(2);
+        });
+        $('#down').on('mousedown', function () {
+            _this.addExamples(3);
+        });
+        $('#up,#left,#right,#down').on('mouseup', function () {
+            $(document.body).attr('data-active', '');
+            _this.training = false;
+        });
+    };
+    return ART;
+}());
+exports.default = ART;
+
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")))
+
+/***/ }),
+
+/***/ "./src/dataset.ts":
+/*!************************!*\
+  !*** ./src/dataset.ts ***!
+  \************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tf = __webpack_require__(/*! @tensorflow/tfjs */ "./node_modules/@tensorflow/tfjs/dist/index.js");
+/**
+ * A dataset for webcam controls which allows the user to add example Tensors
+ * for particular labels. This object will concat them into two large xs and ys.
+ */
+var ControllerDataset = /** @class */ (function () {
+    function ControllerDataset(numClasses) {
+        this.numClasses = numClasses;
+    }
+    /**
+     * Adds an example to the controller dataset.
+     * @param {Tensor} example A tensor representing the example. It can be an image,
+     *     an activation, or any other type of Tensor.
+     * @param {number} label The label of the example. Should be an umber.
+     */
+    ControllerDataset.prototype.addExample = function (example, label) {
+        var _this = this;
+        // One-hot encode the label.
+        var y = tf.tidy(function () { return tf.oneHot(tf.tensor1d([label]), _this.numClasses); });
+        if (this.xs == null) {
+            // For the first example that gets added, keep example and y so that the
+            // ControllerDataset owns the memory of the inputs. This makes sure that
+            // if addExample() is called in a tf.tidy(), these Tensors will not get
+            // disposed.
+            this.xs = tf.keep(example);
+            this.ys = tf.keep(y);
+        }
+        else {
+            var oldX = this.xs;
+            this.xs = tf.keep(oldX.concat(example, 0));
+            var oldY = this.ys;
+            this.ys = tf.keep(oldY.concat(y, 0));
+            oldX.dispose();
+            oldY.dispose();
+            y.dispose();
+        }
+    };
+    return ControllerDataset;
+}());
+exports.default = ControllerDataset;
+
+
+/***/ }),
+
+/***/ "./src/index.ts":
+/*!**********************!*\
+  !*** ./src/index.ts ***!
+  \**********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var ar_jsaruco_1 = __webpack_require__(/*! ./ar.jsaruco */ "./src/ar.jsaruco.ts");
+var ar_jstoolkit_1 = __webpack_require__(/*! ./ar.jstoolkit */ "./src/ar.jstoolkit.ts");
+var ar_tensorflow_1 = __webpack_require__(/*! ./ar.tensorflow */ "./src/ar.tensorflow.ts");
+/**
+ * @file bxl-x entry
+ */
+exports.default = {
+    SimpleAR: ar_jsaruco_1.default,
+    AR: ar_jstoolkit_1.default,
+    ART: ar_tensorflow_1.default
+};
+
+
+/***/ }),
+
+/***/ "./src/webcam.ts":
+/*!***********************!*\
+  !*** ./src/webcam.ts ***!
+  \***********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -40155,107 +40424,87 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var tf = __webpack_require__(/*! @tensorflow/tfjs */ "./node_modules/@tensorflow/tfjs/dist/index.js");
 /**
- * webar by tensorflow
+ * @file web camera
  */
-var Work = /** @class */ (function () {
-    function Work() {
+var Webcam = /** @class */ (function () {
+    function Webcam(webcamElement) {
+        this.webcamElement = webcamElement;
     }
     /**
-     * y = 2x
+     * Captures a frame from the webcam and normalizes it between -1 and 1.
+     * Returns a batched image (1-element batch) of shape [1, w, h, c].
      */
-    Work.prototype.testMath = function () {
-        var trainingAnswer = tf.variable(tf.scalar(Math.random()));
-        function predict(x) {
-            return tf.tidy(function () {
-                return trainingAnswer.mul(x);
-            });
-        }
-        function loss(predictions, labels) {
-            var meanSquareError = predictions.sub(labels).square().mean();
-            return meanSquareError;
-        }
-        function generateData(numPoints, answer) {
-            return tf.tidy(function () {
-                var xs = tf.randomNormal([numPoints], -1, 1);
-                var ans = tf.scalar(answer);
-                var ys = ans.mul(xs);
-                return { xs: xs, ys: ys };
-            });
-        }
-        function train(xs, ys, numIterations) {
-            var optimizer = tf.train.sgd(0.5);
-            for (var iter = 0; iter < numIterations; iter++) {
-                optimizer.minimize(function () {
-                    var predsYs = predict(xs);
-                    return loss(predsYs, ys);
-                });
-            }
-        }
-        function learnCoefficients(dataCount, iterations) {
-            return __awaiter(this, void 0, void 0, function () {
-                var correctAnswer, trainingData, _a, _b, _c, _d, _e, _f, _g, _h, _j;
-                return __generator(this, function (_k) {
-                    switch (_k.label) {
-                        case 0:
-                            correctAnswer = 2;
-                            trainingData = generateData(dataCount, 2);
-                            _b = (_a = console).log;
-                            _c = ['Before Training: '];
-                            return [4 /*yield*/, trainingAnswer.data()];
-                        case 1:
-                            _b.apply(_a, _c.concat([_k.sent()]));
-                            _e = (_d = console).log;
-                            _f = ['Before Training: '];
-                            return [4 /*yield*/, trainingAnswer.data()];
-                        case 2:
-                            _e.apply(_d, _f.concat([_k.sent()]));
-                            // Train the model!
-                            return [4 /*yield*/, train(trainingData.xs, trainingData.ys, iterations)];
-                        case 3:
-                            // Train the model!
-                            _k.sent();
-                            // 印出訓練結果
-                            _h = (_g = console).log;
-                            _j = ['After TRaining: '];
-                            return [4 /*yield*/, trainingAnswer.data()];
-                        case 4:
-                            // 印出訓練結果
-                            _h.apply(_g, _j.concat([_k.sent()]));
-                            return [2 /*return*/];
-                    }
-                });
-            });
-        }
-        learnCoefficients(100, 1000);
+    Webcam.prototype.capture = function () {
+        var _this = this;
+        return tf.tidy(function () {
+            // Reads the image as a Tensor from the webcam <video> element.
+            var webcamImage = tf.fromPixels(_this.webcamElement);
+            // Crop the image so we're using the center square of the rectangular
+            // webcam.
+            var croppedImage = _this.cropImage(webcamImage);
+            // Expand the outer most dimension so we have a batch size of 1.
+            var batchedImage = croppedImage.expandDims(0);
+            // Normalize the image between -1 and 1. The image comes in between 0-255,
+            // so we divide by 127 and subtract 1.
+            return batchedImage.toFloat().div(tf.scalar(127)).sub(tf.scalar(1));
+        });
     };
-    return Work;
+    /**
+     * Crops an image tensor so we get a square image with no white space.
+     * @param {Tensor4D} img An input image Tensor to crop.
+     */
+    Webcam.prototype.cropImage = function (img) {
+        var size = Math.min(img.shape[0], img.shape[1]);
+        var centerHeight = img.shape[0] / 2;
+        var beginHeight = centerHeight - (size / 2);
+        var centerWidth = img.shape[1] / 2;
+        var beginWidth = centerWidth - (size / 2);
+        return img.slice([beginHeight, beginWidth, 0], [size, size, 3]);
+    };
+    /**
+     * Adjusts the video size so we can make a centered square crop without
+     * including whitespace.
+     * @param {number} width The real width of the video element.
+     * @param {number} height The real height of the video element.
+     */
+    Webcam.prototype.adjustVideoSize = function (width, height) {
+        var aspectRatio = width / height;
+        if (width >= height) {
+            this.webcamElement.width = aspectRatio * this.webcamElement.height;
+        }
+        else if (width < height) {
+            this.webcamElement.height = this.webcamElement.width / aspectRatio;
+        }
+    };
+    Webcam.prototype.setup = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        if (navigator.getUserMedia) {
+                            navigator.getUserMedia({ video: true }, function (stream) {
+                                _this.webcamElement.srcObject = stream;
+                                _this.webcamElement.addEventListener('loadeddata', function () { return __awaiter(_this, void 0, void 0, function () {
+                                    return __generator(this, function (_a) {
+                                        this.adjustVideoSize(this.webcamElement.videoWidth, this.webcamElement.videoHeight);
+                                        resolve();
+                                        return [2 /*return*/];
+                                    });
+                                }); }, false);
+                            }, function (error) {
+                                document.querySelector('#no-webcam')['style'].display = 'block';
+                            });
+                        }
+                        else {
+                            reject();
+                        }
+                    })];
+            });
+        });
+    };
+    return Webcam;
 }());
-exports.default = Work;
-
-
-/***/ }),
-
-/***/ "./src/index.ts":
-/*!**********************!*\
-  !*** ./src/index.ts ***!
-  \**********************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var ar_jsaruco_1 = __webpack_require__(/*! ./ar.jsaruco */ "./src/ar.jsaruco.ts");
-var ar_jstoolkit_1 = __webpack_require__(/*! ./ar.jstoolkit */ "./src/ar.jstoolkit.ts");
-var ar_tensorflow_1 = __webpack_require__(/*! ./ar.tensorflow */ "./src/ar.tensorflow.ts");
-/**
- * @file bxl-x entry
- */
-exports.default = {
-    SimpleAR: ar_jsaruco_1.default,
-    AR: ar_jstoolkit_1.default,
-    Work: ar_tensorflow_1.default
-};
+exports.default = Webcam;
 
 
 /***/ }),

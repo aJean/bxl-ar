@@ -17,15 +17,19 @@
 
 html,
 body {
+    padding: 0;
+    margin: 0;
     background: #2a2a2a;
     font-family: 'Roboto', sans-serif;
-    margin: 0;
-    padding: 0;
 }
 
 body {
     display: flex;
     flex-direction: column;
+}
+
+button {
+    cursor: pointer;
 }
 
 button:focus {
@@ -35,23 +39,182 @@ button:focus {
 /** Page header. **/
 
 header {
-    background-color: #ef6c00;
+    padding: 20px 0;
     border-bottom: solid 1px rgba(0, 0, 0, 0.4);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    color: rgba(255, 255, 255, 0.7);
     font-size: 30px;
     font-weight: 300;
-    line-height: 1.45em;
-    overflow: hidden;
-    padding: 20px 0;
-    position: relative;
     text-align: center;
     -webkit-font-smoothing: antialiased;
+    background-color: #ef6c00;
+    color: rgba(255, 255, 255, 0.7);
+    overflow: hidden;
 }
 
-header b {
-    color: rgba(255, 255, 255, 1);
-    font-weight: 400;
+[data-active="up"] .top .thumb-box-outer,
+[data-active="down"] .bottom .thumb-box-outer,
+[data-active="left"] .left .thumb-box-outer,
+[data-active="right"] .right .thumb-box-outer {
+  box-shadow: 0 0 4px 4px #ffaa00;
+}
+
+.webcam-move {
+    position: relative;
+    box-sizing: border-box;
+    height: 200px;
+    border: 1px solid #585858;
+    border-radius: 4px;
+    background: black;
+    padding: 9px;
+}
+
+.webcam-move .webcam-move-target {
+    position: absolute;
+    left: 100px;
+    top: 100px;
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    background: green;
+}
+
+.webcam-control {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 9px;
+    margin-top: 20px;
+}
+
+.webcam-control-net {
+    padding: 20px;
+    border-right: 1px dashed rgba(218, 216, 216, .5);
+    margin-right: 100px;
+}
+
+.webcam-control-net button {
+    width: 100px;
+    height: 40px;
+    line-height: 40px;
+    background: #3b7dd3;
+    color: #fff;
+}
+
+.webcam-btns {
+    display: flex;
+    justify-content: space-around;
+}
+
+.webcam-param {
+    display: inline-block;
+    margin-right: 10px;
+    vertical-align: middle;
+    color: #999;
+}
+
+.webcam-control-net .webcam-video-wrap {
+    margin-top: 30px;
+    display: inline-block;
+    box-sizing: border-box;
+    padding: 9px;
+    border: 1px solid #585858;
+    border-radius: 4px;
+    vertical-align: middle;        
+    background: black;
+}
+
+.webcam-control-net .webcam-video {
+    display: flex;
+    justify-content: center;
+    width: 160px;
+    border: 1px solid #585858;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.webcam-control-collect {
+    position: relative;
+    padding: 100px;
+}
+
+.webcam-control-collect img {
+    margin: 50px;
+}
+
+.thumb-box {
+    position: absolute;
+}
+
+.thumb-box.top {
+    top: 0;
+    left: 180px;
+}
+
+.thumb-box.left {
+    top: 150px;
+    left: 0;
+}
+
+.thumb-box.right {
+    top: 150px;
+    right: 0;
+}
+
+.thumb-box.bottom {
+    left: 180px;
+    bottom: 0;
+}
+
+.thumb-box .thumb-box-outer {
+    position: relative;
+    border: 1px solid #585858;
+    border-radius: 4px;
+    padding: 9px;
+    background: #000;
+}
+
+.thumb-box .thumb-box-inner {
+    display: flex;
+    justify-content: center;
+    width: 66px;
+    border: 1px solid #585858;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.thumb-box .thumb {
+    height: 66px;
+    transform: scaleX(-1);
+}
+
+.thumb-box .record-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: none;
+    border: none;
+}
+
+.thumb-box .record-button span {
+    display: block;
+    position: absolute;
+    left: 9px;
+    right: 9px;
+    bottom: 9px;
+    border: 1px solid #585858;
+    border-radius: 3px;
+    font-size: 8px;
+    opacity: 0.5;
+    background: #111;
+    color: #f8f8f8;
+}
+
+.thumb-box .thumb-count {
+    font-size: 12px;
+    text-align: center;
+    color: #999;
 }
 
 /** Loading message. */
@@ -205,24 +368,7 @@ header b {
     margin-top: 35px;
 }
 
-.webcam-box-outer {
-    background: black;
-    border: 1px solid #585858;
-    border-radius: 4px;
-    box-sizing: border-box;
-    display: inline-block;
-    padding: 9px;
-}
 
-.webcam-box-inner {
-    border: 1px solid #585858;
-    border-radius: 4px;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
-    width: 160px;
-}
 
 #webcam {
     height: 160px;
@@ -317,68 +463,6 @@ header b {
     height: 132px;
 }
 
-.thumb-box {
-    display: inline-block;
-}
-
-.panel-row-middle .thumb-box {
-    margin-top: 18px;
-}
-
-.thumb-box-outer {
-    background: black;
-    border: 1px solid #585858;
-    border-radius: 4px;
-    box-sizing: border-box;
-    display: inline-block;
-    padding: 9px;
-    position: relative;
-    transition: box-shadow 0.3s;
-}
-
-[data-active="up"] .panel-row-top .thumb-box-outer,
-[data-active="down"] .panel-row-bottom .thumb-box-outer,
-[data-active="left"] .panel-cell-left .thumb-box-outer,
-[data-active="right"] .panel-cell-right .thumb-box-outer {
-    box-shadow: 0 0 4px 4px #ffaa00;
-}
-
-.thumb-box-inner {
-    border: 1px solid #585858;
-    border-radius: 4px;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
-    width: 66px;
-}
-
-.thumb {
-    height: 66px;
-    transform: scaleX(-1);
-}
-
-.thumb-box-outer .record-button {
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
-}
-
-.thumb-box-outer .record-button span {
-    background: #111;
-    border: 1px solid #585858;
-    border-radius: 3px;
-    bottom: 9px;
-    color: #f8f8f8;
-    display: block;
-    font-size: 8px;
-    left: 9px;
-    position: absolute;
-    right: 9px;
-    opacity: 0.5;
-}
 
 /** Footer. **/
 

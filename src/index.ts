@@ -1,6 +1,6 @@
 import SimpleAR from './ar.jsaruco';
 import AR from './ar.jstoolkit';
-import Work from './ar.tensorflow';
+import ART from './ar.tensorflow';
 
 /** 
  * @file bxl-x entry
@@ -9,5 +9,5 @@ import Work from './ar.tensorflow';
 export default {
     SimpleAR: SimpleAR,
     AR: AR,
-    Work: Work
+    ART: ART
 };

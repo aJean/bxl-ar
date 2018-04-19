@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1, maximum-scale=1">
+        <title>webcam 训练</title>
+        <link rel="stylesheet" href="webcam.css" />
+    </head>
+    <body>
+        <header>使用摄像头训练</header>
+        <section id="no-webcam">
+            No webcam found. <br/>
+            To use this demo, use a device with a webcam.
+        </section>
+        <section class="webcam-move">
+            <div class="webcam-move-target"></div>
+        </section>
+        <section class="webcam-control">
+            <div class="webcam-control-net">
+                <div class="webcam-btns">
+                    <button id="train">训练</button>
+                    <button id="play">play</button>
+                </div>
+                <div class="webcam-param">
+                    <p>Learning rate: 0.01</p>
+                    <p>Batch size: 0.04</p>
+                    <p>Epochs: 20</p>
+                    <p>Hidden units: 100</p>
+                </div>
+                <div class="webcam-video-wrap">
+                    <div class="webcam-video">
+                        <video autoplay playsinline muted id="webcam" width="224" height="224"></video>
+                    </div>
+                </div>
+            </div>
+            <div class="webcam-control-collect">
+                <img src="./arrow.png" width="150">
+                <div class="thumb-box top">
+                    <div class="thumb-box-outer">
+                        <div class="thumb-box-inner">
+                            <canvas class="thumb" width="224" height="224" id="up-thumb"></canvas>
+                        </div>
+                        <button class="record-button" id="up"><span>Add Sample</span></button>
+                    </div>
+                    <p class="thumb-count"><span id="up-total">0</span> examples</p>
+                </div>
+                <div class="thumb-box left">
+                    <div class="thumb-box-outer">
+                        <div class="thumb-box-inner">
+                            <canvas class="thumb" width="224" height="224" id="left-thumb"></canvas>
+                        </div>
+                        <button class="record-button" id="left"><span>Add Sample</span></button>
+                    </div>
+                    <p class="thumb-count"><span id="left-total">0</span> examples</p>
+                </div>
+                <div class="thumb-box right">
+                    <div class="thumb-box-outer">
+                        <div class="thumb-box-inner">
+                            <canvas class="thumb" width="224" height="224" id="right-thumb"></canvas>
+                        </div>
+                        <button class="record-button" id="right"><span>Add Sample</span></button>
+                    </div>
+                    <p class="thumb-count"><span id="right-total">0</span> examples</p>
+                </div>
+                <div class="thumb-box bottom">
+                    <div class="thumb-box-outer">
+                        <div class="thumb-box-inner">
+                            <canvas class="thumb" width="224" height="224" id="down-thumb"></canvas>
+                        </div>
+                        <button class="record-button" id="down"><span>Add Sample</span></button>
+                    </div>
+                    <p class="thumb-count"><span id="down-total">0</span> examples</p>
+                </div>
+        </section>
+        <script src="../../dist/three.min.js"></script>
+        <script src="../../dist/lib.js"></script>
+        <script>
+            const art = new bxlx.ART()
+            art.testMath();
+            art.testWebcam();
+        </script>
+    </body>
+</html>

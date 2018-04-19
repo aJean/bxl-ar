@@ -8,28 +8,28 @@ export function init() {
     statusElement.style.display = 'none';
 }
 
-const trainStatusElement = document.getElementById('train-status');
+const trainStatusElement: any = document.getElementById('train-status');
 
 // Set hyper params from UI values.
-const learningRateElement = document.getElementById('learningRate');
+const learningRateElement: any = document.getElementById('learningRate');
 export const getLearningRate = () => +learningRateElement.value;
 
-const batchSizeFractionElement = document.getElementById('batchSizeFraction');
+const batchSizeFractionElement: any = document.getElementById('batchSizeFraction');
 export const getBatchSizeFraction = () => +batchSizeFractionElement.value;
 
-const epochsElement = document.getElementById('epochs');
+const epochsElement: any = document.getElementById('epochs');
 export const getEpochs = () => +epochsElement.value;
 
-const denseUnitsElement = document.getElementById('dense-units');
+const denseUnitsElement: any = document.getElementById('dense-units');
 export const getDenseUnits = () => +denseUnitsElement.value;
 const statusElement = document.getElementById('status');
 
 export function startPacman() {
-    google.pacman.startGameplay();
+    // google.pacman.startGameplay();
 }
 
 export function predictClass(classId) {
-    google.pacman.keyPressed(CONTROL_CODES[classId]);
+    // google.pacman.keyPressed(CONTROL_CODES[classId]);
     document.body.setAttribute('data-active', CONTROLS[classId]);
 }
 
@@ -61,7 +61,7 @@ async function handler(label) {
     mouseDown = true;
     const className = CONTROLS[label];
     const button = document.getElementById(className);
-    const total = document.getElementById(className + '-total');
+    const total: any = document.getElementById(className + '-total');
     while (mouseDown) {
         addExampleHandler(label);
         document.body.setAttribute('data-active', CONTROLS[label]);
