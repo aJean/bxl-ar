@@ -71,7 +71,9 @@ export default class ART {
     }
 
     addExamples(index) {
+        this.active = false;
         this.training = true;
+        $('#play').addClass('webcam-btns-disabled');        
 
         const label = CONTROLS[index];
         $(document.body).attr('data-active', label);
@@ -80,7 +82,7 @@ export default class ART {
             if (this.training) {
                 tf.tidy(() => {
                     const img = this.webcam.capture();
-                    this.dataset.addExample(this.mobilenet.predict(img), label);
+                    this.dataset.addExample(this.mobilenet.predict(img), index);
             
                     // Draw the preview thumbnail.
                     this.drawThumb(img, label);
@@ -140,14 +142,20 @@ export default class ART {
             $(document.body).attr('data-active', '');
             this.training = false;
         });
+
+        $('#train').on('click', () => this.train());
+        $('#play').on('click', () => this.predict());
     }
 
     /**
      * s训练我们自己的模型数据
      */
     train() {
+        this.active = false;
+        $('#play').addClass('webcam-btns-disabled');
+        
         if (this.dataset.xs == null) {
-            throw new Error('Add some examples before training!');
+            return alert('先在右侧面板进行图像采集!');
         }
         
         const dataset = this.dataset;
@@ -162,34 +170,29 @@ export default class ART {
                 tf.layers.flatten({inputShape: [7, 7, 256]}),
                 // Layer 1
                 tf.layers.dense({
+                    // 神经单元节点数
                     units: 100,
                     activation: 'relu',
                     kernelInitializer: 'varianceScaling',
                     useBias: true
                 }),
-                // Layer 2. The number of units of the last layer should correspond
-                // to the number of classes we want to predict.
+                // Layer 2. 神经节点数和我们要预测的类别数相同
                 tf.layers.dense({
                     units: 4,
                     kernelInitializer: 'varianceScaling',
                     useBias: false,
+                    // 概率总和为 1.0
                     activation: 'softmax'
                 })
             ]
         });
     
-        // Creates the optimizers which drives training of the model.
+        // 创建 adam 优化器
         const optimizer = tf.train.adam(0.01);
-        // We use categoricalCrossentropy which is the loss function we use for
-        // categorical classification which measures the error between our predicted
-        // probability distribution over classes (probability that an input is of each
-        // class), versus the label (100% probability in the true class)>
+        // 损失函数将测量我们4个类别的预测概率分布与真实标签之间的误差
         this.model.compile({optimizer: optimizer, loss: 'categoricalCrossentropy'});
-    
-        // We parameterize batch size as a fraction of the entire dataset because the
-        // number of examples that are collected depends on how many examples the user
-        // collects. This allows us to have a flexible batch size.
-        const batchSize = Math.floor(dataset.xs.shape[0] * 0.04);
+        // 每次迭代取多少样本进行训练
+        const batchSize = Math.floor(dataset.xs.shape[0] * 0.4);
         if (!(batchSize > 0)) {
             throw new Error('Batch size is 0 or NaN. Please choose a non-zero fraction.');
         }
@@ -200,10 +203,73 @@ export default class ART {
             epochs: 20,
             callbacks: {
                 onBatchEnd: async (batch, logs) => {
-                    console.log('Loss: ' + logs.loss.toFixed(5));
+                    $('header').html('Loss: ' + logs.loss.toFixed(5));
                     await tf.nextFrame();
                 }
             }
+        }).then(() => {
+            this.active = true;
+            $('#play').removeClass('webcam-btns-disabled');
         });
+    }
+
+    predict() {
+        if (!this.active) {
+            return;
+        }
+
+        const predictedClass = tf.tidy(() => {
+            const img = this.webcam.capture();
+            // first use mobilenet
+            const activation = this.mobilenet.predict(img);
+            // our model
+            const predictions = this.model.predict(activation);
+            // 获取结果中最大值的索引号 [1, 0, 0, 0] [0, 0, 1, 0] ...
+            return predictions.as1D().argMax();
+        });
+
+        predictedClass.data().then(classId => this.moveTarget(classId[0]));
+        // loop
+        tf.nextFrame().then(() => this.predict());
+    }
+
+    moveTarget(index) {
+        const label = CONTROLS[index];
+        const $elem = $('#target');
+        const y = parseInt($elem.css('top'));
+        const x = parseInt($elem.css('left'));
+console.log(index)
+        $(document.body).attr('data-active', label);
+
+        switch (index) {
+            case 0:
+                if (y <= 0) {
+                    $elem.css('top', '2px');
+                } else {
+                    $elem.css('top', y - 1 + 'px');
+                }
+                break;
+            case 1:
+                if (x <= 0) {
+                    $elem.css('left', '2px');
+                } else {
+                    $elem.css('left', x - 1 + 'px');
+                }
+                break;
+            case 2:
+                if (x >= window.innerWidth - 30) {
+                    $elem.css('left', window.innerWidth - 32 + 'px');
+                } else {
+                    $elem.css('left', x + 1 + 'px');
+                }
+                break;
+            case 3:
+                if (y >= 170) {
+                    $elem.css('top', '168px');
+                } else {
+                    $elem.css('top', y + 1 + 'px');
+                }
+                break;
+        }
     }
 }

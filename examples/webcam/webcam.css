@@ -100,6 +100,11 @@ header {
     color: #fff;
 }
 
+.webcam-control-net .webcam-btns-disabled {
+    background: #8b8b8b;
+    cursor: default;
+}
+
 .webcam-btns {
     display: flex;
     justify-content: space-around;

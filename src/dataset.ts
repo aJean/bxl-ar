@@ -1,10 +1,10 @@
 import * as tf from '@tensorflow/tfjs';
 
 /**
- * A dataset for webcam controls which allows the user to add example Tensors
- * for particular labels. This object will concat them into two large xs and ys.
+ * @file dataset 收集采样数据
  */
-export default class ControllerDataset {
+
+export default class Dataset {
     numClasses: any;
     xs: any;
     ys: any;
@@ -15,19 +15,15 @@ export default class ControllerDataset {
 
     /**
      * Adds an example to the controller dataset.
-     * @param {Tensor} example A tensor representing the example. It can be an image,
-     *     an activation, or any other type of Tensor.
-     * @param {number} label The label of the example. Should be an umber.
+     * @param {Tensor} example 摄像机的一帧
+     * @param {number} label 结果编号
      */
     addExample(example, label) {
-        // One-hot encode the label.
+        // 将标签转化 one-hot 向量作为结果
         const y = tf.tidy(() => tf.oneHot(tf.tensor1d([label]), this.numClasses));
-
+console.log(example);
         if (this.xs == null) {
-            // For the first example that gets added, keep example and y so that the
-            // ControllerDataset owns the memory of the inputs. This makes sure that
-            // if addExample() is called in a tf.tidy(), these Tensors will not get
-            // disposed.
+            // keep tensors
             this.xs = tf.keep(example);
             this.ys = tf.keep(y);
         } else {

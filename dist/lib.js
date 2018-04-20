@@ -40159,6 +40159,7 @@ var webcam_1 = __webpack_require__(/*! ./webcam */ "./src/webcam.ts");
 var dataset_1 = __webpack_require__(/*! ./dataset */ "./src/dataset.ts");
 /**
  * webar by tensorflow
+ * onehot softmax dense ???
  */
 var CONTROLS = ['up', 'left', 'right', 'down'];
 var TOTALS = [0, 0, 0, 0];
@@ -40232,14 +40233,16 @@ var ART = /** @class */ (function () {
     };
     ART.prototype.addExamples = function (index) {
         var _this = this;
+        this.active = false;
         this.training = true;
+        $('#play').addClass('webcam-btns-disabled');
         var label = CONTROLS[index];
         $(document.body).attr('data-active', label);
         tf.nextFrame().then(function () {
             if (_this.training) {
                 tf.tidy(function () {
                     var img = _this.webcam.capture();
-                    _this.dataset.addExample(_this.mobilenet.predict(img), label);
+                    _this.dataset.addExample(_this.mobilenet.predict(img), index);
                     // Draw the preview thumbnail.
                     _this.drawThumb(img, label);
                     $("#" + label + "-total").html(String(TOTALS[index]++));
@@ -40289,6 +40292,138 @@ var ART = /** @class */ (function () {
             $(document.body).attr('data-active', '');
             _this.training = false;
         });
+        $('#train').on('click', function () { return _this.train(); });
+        $('#play').on('click', function () { return _this.predict(); });
+    };
+    /**
+     * s训练我们自己的模型数据
+     */
+    ART.prototype.train = function () {
+        var _this = this;
+        this.active = false;
+        $('#play').addClass('webcam-btns-disabled');
+        if (this.dataset.xs == null) {
+            return alert('先在右侧面板进行图像采集!');
+        }
+        var dataset = this.dataset;
+        // Creates a 2-layer fully connected model. By creating a separate model,
+        // rather than adding layers to the mobilenet model, we "freeze" the weights
+        // of the mobilenet model, and only train weights from the new model.
+        this.model = tf.sequential({
+            layers: [
+                // Flattens the input to a vector so we can use it in a dense layer. While
+                // technically a layer, this only performs a reshape (and has no training
+                // parameters).
+                tf.layers.flatten({ inputShape: [7, 7, 256] }),
+                // Layer 1
+                tf.layers.dense({
+                    // 神经单元节点数
+                    units: 100,
+                    activation: 'relu',
+                    kernelInitializer: 'varianceScaling',
+                    useBias: true
+                }),
+                // Layer 2. 神经节点数和我们要预测的类别数相同
+                tf.layers.dense({
+                    units: 4,
+                    kernelInitializer: 'varianceScaling',
+                    useBias: false,
+                    // 概率总和为 1.0
+                    activation: 'softmax'
+                })
+            ]
+        });
+        // 创建 adam 优化器
+        var optimizer = tf.train.adam(0.01);
+        // 损失函数将测量我们4个类别的预测概率分布与真实标签之间的误差
+        this.model.compile({ optimizer: optimizer, loss: 'categoricalCrossentropy' });
+        // 每次迭代取多少样本进行训练
+        var batchSize = Math.floor(dataset.xs.shape[0] * 0.4);
+        if (!(batchSize > 0)) {
+            throw new Error('Batch size is 0 or NaN. Please choose a non-zero fraction.');
+        }
+        // Train the model! Model.fit() will shuffle xs & ys so we don't have to.
+        this.model.fit(dataset.xs, dataset.ys, {
+            batchSize: batchSize,
+            epochs: 20,
+            callbacks: {
+                onBatchEnd: function (batch, logs) { return __awaiter(_this, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                $('header').html('Loss: ' + logs.loss.toFixed(5));
+                                return [4 /*yield*/, tf.nextFrame()];
+                            case 1:
+                                _a.sent();
+                                return [2 /*return*/];
+                        }
+                    });
+                }); }
+            }
+        }).then(function () {
+            _this.active = true;
+            $('#play').removeClass('webcam-btns-disabled');
+        });
+    };
+    ART.prototype.predict = function () {
+        var _this = this;
+        if (!this.active) {
+            return;
+        }
+        var predictedClass = tf.tidy(function () {
+            var img = _this.webcam.capture();
+            // first use mobilenet
+            var activation = _this.mobilenet.predict(img);
+            // our model
+            var predictions = _this.model.predict(activation);
+            // 获取结果中最大值的索引号 [1, 0, 0, 0] [0, 0, 1, 0] ...
+            return predictions.as1D().argMax();
+        });
+        predictedClass.data().then(function (classId) { return _this.moveTarget(classId[0]); });
+        // loop
+        tf.nextFrame().then(function () { return _this.predict(); });
+    };
+    ART.prototype.moveTarget = function (index) {
+        var label = CONTROLS[index];
+        var $elem = $('#target');
+        var y = parseInt($elem.css('top'));
+        var x = parseInt($elem.css('left'));
+        console.log(index);
+        $(document.body).attr('data-active', label);
+        switch (index) {
+            case 0:
+                if (y <= 0) {
+                    $elem.css('top', '2px');
+                }
+                else {
+                    $elem.css('top', y - 1 + 'px');
+                }
+                break;
+            case 1:
+                if (x <= 0) {
+                    $elem.css('left', '2px');
+                }
+                else {
+                    $elem.css('left', x - 1 + 'px');
+                }
+                break;
+            case 2:
+                if (x >= window.innerWidth - 30) {
+                    $elem.css('left', window.innerWidth - 32 + 'px');
+                }
+                else {
+                    $elem.css('left', x + 1 + 'px');
+                }
+                break;
+            case 3:
+                if (y >= 170) {
+                    $elem.css('top', '168px');
+                }
+                else {
+                    $elem.css('top', y + 1 + 'px');
+                }
+                break;
+        }
     };
     return ART;
 }());
@@ -40310,28 +40445,24 @@ exports.default = ART;
 Object.defineProperty(exports, "__esModule", { value: true });
 var tf = __webpack_require__(/*! @tensorflow/tfjs */ "./node_modules/@tensorflow/tfjs/dist/index.js");
 /**
- * A dataset for webcam controls which allows the user to add example Tensors
- * for particular labels. This object will concat them into two large xs and ys.
+ * @file dataset 收集采样数据
  */
-var ControllerDataset = /** @class */ (function () {
-    function ControllerDataset(numClasses) {
+var Dataset = /** @class */ (function () {
+    function Dataset(numClasses) {
         this.numClasses = numClasses;
     }
     /**
      * Adds an example to the controller dataset.
-     * @param {Tensor} example A tensor representing the example. It can be an image,
-     *     an activation, or any other type of Tensor.
-     * @param {number} label The label of the example. Should be an umber.
+     * @param {Tensor} example 摄像机的一帧
+     * @param {number} label 结果编号
      */
-    ControllerDataset.prototype.addExample = function (example, label) {
+    Dataset.prototype.addExample = function (example, label) {
         var _this = this;
-        // One-hot encode the label.
+        // 将标签转化 one-hot 向量作为结果
         var y = tf.tidy(function () { return tf.oneHot(tf.tensor1d([label]), _this.numClasses); });
+        console.log(example);
         if (this.xs == null) {
-            // For the first example that gets added, keep example and y so that the
-            // ControllerDataset owns the memory of the inputs. This makes sure that
-            // if addExample() is called in a tf.tidy(), these Tensors will not get
-            // disposed.
+            // keep tensors
             this.xs = tf.keep(example);
             this.ys = tf.keep(y);
         }
@@ -40345,9 +40476,9 @@ var ControllerDataset = /** @class */ (function () {
             y.dispose();
         }
     };
-    return ControllerDataset;
+    return Dataset;
 }());
-exports.default = ControllerDataset;
+exports.default = Dataset;
 
 
 /***/ }),
