@@ -40317,7 +40317,6 @@ var ART = /** @class */ (function () {
                 tf.layers.flatten({ inputShape: [7, 7, 256] }),
                 // Layer 1
                 tf.layers.dense({
-                    // 神经单元节点数
                     units: 100,
                     activation: 'relu',
                     kernelInitializer: 'varianceScaling',
@@ -40460,7 +40459,6 @@ var Dataset = /** @class */ (function () {
         var _this = this;
         // 将标签转化 one-hot 向量作为结果
         var y = tf.tidy(function () { return tf.oneHot(tf.tensor1d([label]), _this.numClasses); });
-        console.log(example);
         if (this.xs == null) {
             // keep tensors
             this.xs = tf.keep(example);

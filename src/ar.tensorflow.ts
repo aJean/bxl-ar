@@ -170,7 +170,6 @@ export default class ART {
                 tf.layers.flatten({inputShape: [7, 7, 256]}),
                 // Layer 1
                 tf.layers.dense({
-                    // 神经单元节点数
                     units: 100,
                     activation: 'relu',
                     kernelInitializer: 'varianceScaling',

@@ -21,7 +21,7 @@ export default class Dataset {
     addExample(example, label) {
         // 将标签转化 one-hot 向量作为结果
         const y = tf.tidy(() => tf.oneHot(tf.tensor1d([label]), this.numClasses));
-console.log(example);
+
         if (this.xs == null) {
             // keep tensors
             this.xs = tf.keep(example);
