@@ -1,7 +1,7 @@
 {
-  "name": "bxl-ar",
+  "name": "radical-ar",
   "version": "1.0.0",
-  "description": "webar for bxl",
+  "description": "webar for radical",
   "main": "./dist/lib.js",
   "directories": {
     "example": "examples"
@@ -11,18 +11,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aJean/bxl-ar.git"
+    "url": "git+https://github.com/aJean/radical-ar.git"
   },
   "keywords": [
-    "bxl",
+    "radical",
     "webar"
   ],
-  "author": "kenzoss",
+  "author": "aJean",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/aJean/bxl-ar/issues"
+    "url": "https://github.com/aJean/radical-ar/issues"
   },
-  "homepage": "https://github.com/aJean/bxl-ar#readme",
+  "homepage": "https://github.com/aJean/radical-ar#readme",
   "dependencies": {
     "@tensorflow/tfjs": "^0.9.1",
     "@types/es6-shim": "^0.31.36",
